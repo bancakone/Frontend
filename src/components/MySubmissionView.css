@@ -1,0 +1,106 @@
+/* src/components/MySubmissionView.css */
+.my-submission-view-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 25px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative; /* Pour le bouton de fermeture */
+}
+
+.my-submission-view-container h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.submission-details-card {
+    background-color: #f0f4f8; /* Un gris-bleu très clair */
+    border: 1px solid #d0dbe4;
+    border-left: 5px solid #007bff; /* Barre latérale bleue */
+    border-radius: 8px;
+    padding: 20px;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.submission-details-card p {
+    margin-bottom: 10px;
+    color: #34495e;
+    line-height: 1.5;
+}
+
+.submission-details-card p strong {
+    color: #2c3e50;
+}
+
+.submission-content-text {
+    font-style: italic;
+    background-color: #e8ecef;
+    padding: 8px;
+    border-radius: 4px;
+    display: inline-block; /* Pour un fond autour du texte */
+    margin-top: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.grade-result {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #28a745; /* Vert pour la note */
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px dashed #ccc;
+}
+
+.feedback-result {
+    font-size: 1rem;
+    color: #17a2b8; /* Cyan pour le feedback */
+    margin-top: 10px;
+}
+
+.feedback-text {
+    background-color: #eaf8fa;
+    padding: 8px;
+    border-radius: 4px;
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.no-correction-message {
+    font-style: italic;
+    color: #6c757d;
+    margin-top: 20px;
+}
+
+.close-button {
+  background-color: #6c757d; /* Gris pour fermer */
+  color: white;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  margin-top: 20px;
+}
+
+.close-button:hover {
+  background-color: #5a6268;
+}
+
+.message-info {
+  margin-top: 20px;
+  text-align: center;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.message-info.error {
+    color: #dc3545;
+}

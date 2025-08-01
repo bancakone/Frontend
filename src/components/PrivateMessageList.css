@@ -1,0 +1,101 @@
+/* src/components/PrivateMessageList.css */
+.private-message-list-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 25px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.private-message-list-container h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.message-item {
+  padding: 15px;
+  border-radius: 8px;
+  text-align: left;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.message-item.sent {
+  background-color: #dcf8c6; /* Vert clair pour les messages envoyés */
+  border: 1px solid #aed581;
+  margin-left: auto; /* Aligner à droite */
+  margin-right: 0;
+  width: 90%; /* Occupe 90% de la largeur */
+}
+
+.message-item.received {
+  background-color: #e8e8e8; /* Gris clair pour les messages reçus */
+  border: 1px solid #bdbdbd;
+  margin-right: auto; /* Aligner à gauche */
+  margin-left: 0;
+  width: 90%; /* Occupe 90% de la largeur */
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.message-item.sent .message-header {
+    border-bottom-color: rgba(162, 218, 126, 0.5); /* Bordure discrète pour les envoyés */
+}
+
+.message-item.received .message-header {
+    border-bottom-color: rgba(189, 189, 189, 0.5); /* Bordure discrète pour les reçus */
+}
+
+
+.sender-info {
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: 600;
+}
+
+.message-date {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.message-content {
+  font-size: 1rem;
+  color: #333;
+  line-height: 1.4;
+  white-space: pre-wrap; /* Préserve les retours à la ligne */
+}
+
+.no-messages-found {
+  margin-top: 20px;
+  font-style: italic;
+  color: #6c757d;
+}
+
+.message-info {
+  margin-top: 20px;
+  text-align: center;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.message-info.error {
+    color: #dc3545;
+}

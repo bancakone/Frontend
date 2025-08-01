@@ -1,0 +1,70 @@
+/* src/components/ClassList.css */
+.class-list-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 25px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.class-list-container h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.classes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+  gap: 25px; /* Espace entre les cartes de classe */
+  justify-content: center; /* Centrer les cartes si pas assez pour remplir une ligne */
+}
+
+.class-card {
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  text-align: left;
+  transition: transform 0.2s ease-in-out;
+}
+
+.class-card:hover {
+  transform: translateY(-5px);
+}
+
+.class-card h3 {
+  font-size: 1.5rem;
+  color: #007bff; /* Couleur du titre de la classe */
+  margin-bottom: 10px;
+}
+
+.class-description {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.class-code {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 5px;
+}
+
+.class-professor {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
+.message-info {
+  margin-top: 20px;
+  text-align: center;
+  color: #dc3545; /* Rouge pour les messages d'erreur/info */
+  font-weight: 500;
+}

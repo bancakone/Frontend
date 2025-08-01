@@ -1,0 +1,81 @@
+/* src/components/JoinClass.css */
+.join-class-container {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 25px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.join-class-container h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.join-class-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  color: #4a4a4a;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1rem;
+  color: #333;
+  text-transform: uppercase; /* Pour correspondre à la conversion en JS */
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #6a67d0;
+  box-shadow: 0 0 0 2px rgba(106, 103, 208, 0.2);
+}
+
+.join-class-button {
+  background-color: #17a2b8; /* Un bleu-vert pour rejoindre */
+  color: white;
+  font-weight: bold;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  width: 100%;
+  font-size: 1.1rem;
+  margin-top: 15px;
+}
+
+.join-class-button:hover {
+  background-color: #138496;
+}
+
+.message-info {
+  margin-top: 20px;
+  text-align: center;
+  color: #28a745; /* Vert pour succès */
+  font-weight: 500;
+}
+
+.message-info.error {
+    color: #dc3545; /* Rouge pour erreur */
+}

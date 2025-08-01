@@ -1,0 +1,266 @@
+/* src/components/ProjectList.css */
+.project-list-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 25px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.project-list-container h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.form-group.class-select {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group.class-select label {
+    display: block;
+    color: #4a4a4a;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.form-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1rem;
+  color: #333;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #6a67d0;
+  box-shadow: 0 0 0 2px rgba(106, 103, 208, 0.2);
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.project-card {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-card h3 {
+    font-size: 1.6rem;
+    color: #007bff;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+}
+
+.project-card .project-description {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.project-card .project-dates {
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 8px;
+}
+
+.project-card .project-status {
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.project-card .project-status .status-actif { color: #28a745; } /* Vert */
+.project-card .project-status .status-terminé { color: #dc3545; } /* Rouge */
+.project-card .project-status .status-archivé { color: #6c757d; } /* Gris */
+
+.project-groups h4 {
+    font-size: 1.1rem;
+    color: #444;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.project-groups ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.group-item {
+    background-color: #e9ecef;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.group-item strong {
+    color: #343a40;
+    font-size: 1rem;
+}
+
+.group-members {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.group-members ul {
+    list-style: disc;
+    margin-left: 20px;
+    margin-top: 5px;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 3px;
+}
+
+.remove-member-button {
+    background-color: #ff4d4f; /* Rouge vif */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-left: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.remove-member-button:hover {
+    background-color: #cf1322;
+}
+
+.no-members, .no-groups, .no-projects-found {
+    font-style: italic;
+    color: #888;
+    margin-top: 10px;
+}
+
+.toggle-group-form-button {
+    background-color: #1890ff; /* Bleu */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.toggle-group-form-button:hover {
+    background-color: #096dd9;
+}
+
+.create-group-form {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px dashed #c0c0c0;
+    border-radius: 8px;
+    background-color: #f0f8ff; /* Bleu très clair */
+}
+
+.create-group-form h4 {
+    margin-top: 0;
+    color: #0056b3;
+}
+
+.create-group-form input,
+.create-group-form textarea {
+    width: calc(100% - 24px); /* Full width minus padding */
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border: 1px solid #a0d9ff;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.create-group-form button {
+    background-color: #52c41a; /* Vert pour créer un groupe */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.create-group-form button:hover {
+    background-color: #389e08;
+}
+
+.add-member-form {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.add-member-form select {
+    flex-grow: 1;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #a0d9ff;
+    font-size: 0.85rem;
+}
+
+.add-member-form button {
+    background-color: #fadb14; /* Jaune pour ajouter */
+    color: #333;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.2s;
+}
+
+.add-member-form button:hover {
+    background-color: #f7b900;
+}
+.message-info {
+    margin-top: 20px;
+    text-align: center;
+    color: #007bff;
+    font-weight: 500;
+}
+
+.message-info.error {
+    color: #dc3545;
+}
+
+.message-info.no-classes {
+    color: #ffc107; /* Jaune pour info/warning */
+    font-weight: bold;
+}
