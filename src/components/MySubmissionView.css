@@ -1,106 +1,244 @@
-/* src/components/MySubmissionView.css */
-.my-submission-view-container {
-  max-width: 700px;
-  margin: 40px auto;
-  padding: 25px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  position: relative; /* Pour le bouton de fermeture */
+/* Variables */
+:root {
+  --primary-color: #4361ee;
+  --primary-light: #e0e7ff;
+  --success-color: #4cc9f0;
+  --error-color: #ef233c;
+  --warning-color: #f8961e;
+  --text-color: #2b2d42;
+  --light-gray: #f8f9fa;
+  --medium-gray: #e9ecef;
+  --dark-gray: #6c757d;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --transition: all 0.3s ease;
 }
 
-.my-submission-view-container h2 {
+/* Structure */
+.submission-view-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.submission-view-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.submission-view-header h1 {
+  color: var(--text-color);
   font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 25px;
-  color: #333;
+  margin-bottom: 0.5rem;
 }
 
-.submission-details-card {
-    background-color: #f0f4f8; /* Un gris-bleu très clair */
-    border: 1px solid #d0dbe4;
-    border-left: 5px solid #007bff; /* Barre latérale bleue */
-    border-radius: 8px;
-    padding: 20px;
-    text-align: left;
-    margin-bottom: 20px;
-}
-
-.submission-details-card p {
-    margin-bottom: 10px;
-    color: #34495e;
-    line-height: 1.5;
-}
-
-.submission-details-card p strong {
-    color: #2c3e50;
-}
-
-.submission-content-text {
-    font-style: italic;
-    background-color: #e8ecef;
-    padding: 8px;
-    border-radius: 4px;
-    display: inline-block; /* Pour un fond autour du texte */
-    margin-top: 5px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.grade-result {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #28a745; /* Vert pour la note */
-    margin-top: 20px;
-    padding-top: 10px;
-    border-top: 1px dashed #ccc;
-}
-
-.feedback-result {
-    font-size: 1rem;
-    color: #17a2b8; /* Cyan pour le feedback */
-    margin-top: 10px;
-}
-
-.feedback-text {
-    background-color: #eaf8fa;
-    padding: 8px;
-    border-radius: 4px;
-    display: inline-block;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.no-correction-message {
-    font-style: italic;
-    color: #6c757d;
-    margin-top: 20px;
-}
-
-.close-button {
-  background-color: #6c757d; /* Gris pour fermer */
-  color: white;
-  font-weight: bold;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-  margin-top: 20px;
-}
-
-.close-button:hover {
-  background-color: #5a6268;
-}
-
-.message-info {
-  margin-top: 20px;
-  text-align: center;
-  color: #007bff;
+.task-title {
+  color: var(--primary-color);
+  font-size: 1.2rem;
   font-weight: 500;
 }
 
-.message-info.error {
-    color: #dc3545;
+/* Détails */
+.submission-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.detail-card {
+  background: var(--light-gray);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+}
+
+.detail-card h3 {
+  color: var(--text-color);
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--medium-gray);
+}
+
+.detail-row {
+  margin-bottom: 1rem;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  display: block;
+  font-weight: 500;
+  color: var(--dark-gray);
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.detail-row p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Fichiers */
+.file-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.file-link:hover {
+  text-decoration: underline;
+}
+
+/* Contenu texte */
+.content-text {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--medium-gray);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+/* Correction */
+.feedback-card {
+  border-left: 4px solid var(--success-color);
+}
+
+.feedback-only {
+  border-left: 4px solid var(--primary-color);
+}
+
+.pending-card {
+  border-left: 4px solid var(--warning-color);
+}
+
+.grade-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.grade-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--success-color);
+}
+
+.grade-max {
+  color: var(--dark-gray);
+}
+
+.feedback-text {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--medium-gray);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.pending-message {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--warning-color);
+}
+
+.pending-icon {
+  font-size: 1.5rem;
+}
+
+/* Bouton fermer */
+.close-button {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+  padding: 0.8rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.close-button:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+/* États */
+.submission-view-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.loader {
+  border: 4px solid rgba(67, 97, 238, 0.1);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.submission-view-error,
+.submission-view-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.error-icon {
+  width: 50px;
+  height: 50px;
+  background-color: rgba(239, 35, 60, 0.1);
+  color: var(--error-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+/* Animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .submission-view-container {
+    padding: 1.5rem;
+  }
+
+  .submission-view-header h1 {
+    font-size: 1.5rem;
+  }
 }

@@ -1,265 +1,261 @@
-// src/components/TaskList.js
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './TaskList.css'; // Pour les styles CSS purs
-import MySubmissionView from './MySubmissionView'; // <-- AJOUTEZ CETTE LIGNE
+import axios from "axios";
+import { useEffect, useState } from "react";
+import "./TaskList.css";
 
 function TaskList() {
-    const [userClasses, setUserClasses] = useState([]); // Classes de l'utilisateur
-    const [selectedClassId, setSelectedClassId] = useState(''); // ID de la classe sélectionnée
-    const [tasks, setTasks] = useState([]);
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [userRole, setUserRole] = useState('');
+  const [userClasses, setUserClasses] = useState([]);
+  const [selectedClassId, setSelectedClassId] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [userRole, setUserRole] = useState("");
 
-    // Pour la soumission d'une tâche
-    const [submittingTaskId, setSubmittingTaskId] = useState(null);
-    const [submissionFilePath, setSubmissionFilePath] = useState('');
-    const [submissionContent, setSubmissionContent] = useState('');
-    const [submissionMessage, setSubmissionMessage] = useState('');
-    const [viewingSubmissionId, setViewingSubmissionId] = useState(null); // Nouvel état
+  // État pour la soumission
+  const [submittingTaskId, setSubmittingTaskId] = useState(null);
+  const [submissionFilePath, setSubmissionFilePath] = useState("");
+  const [submissionContent, setSubmissionContent] = useState("");
+  const [submissionMessage, setSubmissionMessage] = useState("");
 
-    useEffect(() => {
-        const fetchUserClasses = async () => {
-            setMessage('');
-            const token = localStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user'));
-            setUserRole(user ? user.role : '');
+  useEffect(() => {
+    const fetchUserClasses = async () => {
+      setMessage("");
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user"));
+      setUserRole(user?.role || "");
 
-            if (!token || !user) {
-                setMessage('Vous devez être connecté pour voir les tâches.');
-                setUserClasses([]);
-                setTasks([]);
-                return;
-            }
+      if (!token || !user) {
+        setMessage("Vous devez être connecté pour voir les tâches.");
+        return;
+      }
 
-            try {
-                // Récupère toutes les classes auxquelles l'utilisateur est inscrit (prof ou étudiant)
-                const response = await axios.get(
-                    '/api/classes/me',
-                    {
-                        headers: {
-                            'x-auth-token': token
-                        }
-                    }
-                );
-                setUserClasses(response.data);
-                if (response.data.length > 0) {
-                    if (!selectedClassId) {
-                        setSelectedClassId(response.data[0].id); // Sélectionne la première classe par défaut
-                    }
-                } else {
-                    setMessage('Vous n\'êtes inscrit à aucune classe pour le moment.');
-                }
-            } catch (error) {
-                const errorMessage = error.response?.data?.message || 'Erreur lors du chargement de vos classes.';
-                setMessage(errorMessage);
-                setUserClasses([]);
-                setTasks([]);
-                console.error('Erreur chargement classes utilisateur (TaskList) :', error.response?.data || error.message);
-            }
-        };
+      try {
+        const response = await axios.get("/api/classes/me", {
+          headers: { "x-auth-token": token },
+        });
+        setUserClasses(response.data);
+        if (response.data.length > 0 && !selectedClassId) {
+          setSelectedClassId(response.data[0].id);
+        }
+      } catch (error) {
+        setMessage(
+          error.response?.data?.message ||
+            "Erreur lors du chargement de vos classes."
+        );
+        console.error("Erreur:", error);
+      }
+    };
 
-        fetchUserClasses();
-    }, []); // Se déclenche une fois au montage
+    fetchUserClasses();
+  }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchTasks = async () => {
-        if (!selectedClassId) {
-            setTasks([]);
-            return;
+      if (!selectedClassId) return;
+
+      setLoading(true);
+      setMessage("");
+      const token = localStorage.getItem("token");
+
+      try {
+        const response = await axios.get(
+          `/api/tasks/class/${selectedClassId}`,
+          {
+            headers: { "x-auth-token": token },
+          }
+        );
+        setTasks(response.data);
+        if (response.data.length === 0) {
+          setMessage("Aucune tâche assignée pour cette classe.");
         }
-
-        setLoading(true);
-        setMessage('');
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user')); // Récupérer l'utilisateur ici
-
-        try {
-            const response = await axios.get(
-                `/api/tasks/class/${selectedClassId}`,
-                {
-                    headers: {
-                        'x-auth-token': token
-                    }
-                }
-            );
-
-            // Pour chaque tâche, vérifier si l'utilisateur (étudiant) a déjà soumis
-            const tasksWithSubmissionStatus = await Promise.all(
-                response.data.map(async (task) => {
-                    if (user && user.role === 'Etudiant') {
-                        try {
-                            // Cette route API devrait être celle pour obtenir la soumission de l'étudiant pour une tâche spécifique
-                            // Nous n'avons pas encore une route dédiée pour "ma soumission pour cette tâche",
-                            // donc nous allons devoir ruser un peu en essayant d'obtenir la soumission complète
-                            // ou en créant une nouvelle route backend si nécessaire.
-                            // Pour l'instant, on va simuler en appelant l'API 'get a specific submission by id'
-                            // ce qui n'est pas idéal si on n'a pas l'ID de la soumission.
-
-                            // **Alternative plus simple pour l'UX sans nouvelle API** :
-                            // L'étudiant peut voir sa soumission seulement APRÈS l'avoir faite.
-                            // Pour le moment, nous allons simplement afficher un bouton de soumission,
-                            // et nous ferons un composant séparé pour "Mes Soumissions" qui liste toutes les soumissions
-                            // de l'étudiant avec leur statut.
-
-                            // Plutôt que d'essayer de pré-fetcher ici, laissons l'étudiant cliquer sur un bouton "Voir mes soumissions"
-                            // dans son tableau de bord, ou "Voir ma soumission" à côté de la tâche si elle est déjà soumise.
-                            // Pour cela, nous aurions besoin d'une API '/api/tasks/:taskId/mySubmission'
-                            // ou plus simplement, une API '/api/users/me/submissions' qui liste toutes les soumissions de l'étudiant.
-
-                            // **Simplifions pour l'instant :**
-                            // Le bouton de soumission est toujours là pour les étudiants.
-                            // Nous allons créer un autre composant global "MySubmissions" (similaire à ClassList)
-                            // qui listera toutes les soumissions faites par l'étudiant, avec leurs détails.
-                            // C'est plus simple que de tenter de pré-détecter les soumissions ici.
-                            return { ...task, hasSubmitted: false }; // Pas de détection ici pour l'instant
-                        } catch (error) {
-                            // Pas de soumission ou erreur
-                            return { ...task, hasSubmitted: false };
-                        }
-                    }
-                    return { ...task, hasSubmitted: false };
-                })
-            );
-            setTasks(tasksWithSubmissionStatus);
-            if (response.data.length === 0) {
-                setMessage('Aucune tâche assignée pour cette classe.');
-            }
-        } catch (error) {
-            // ... gestion des erreurs
-        } finally {
-            setLoading(false);
-        }
+      } catch (error) {
+        setMessage(
+          error.response?.data?.message ||
+            "Erreur lors du chargement des tâches."
+        );
+        console.error("Erreur:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    if (selectedClassId) {
-        fetchTasks();
+    fetchTasks();
+  }, [selectedClassId]);
+
+  const handleSubmission = async (e) => {
+    e.preventDefault();
+    setSubmissionMessage("");
+    const token = localStorage.getItem("token");
+
+    if (!submissionFilePath && !submissionContent) {
+      setSubmissionMessage(
+        "Veuillez fournir un lien ou un contenu pour votre soumission."
+      );
+      return;
     }
-}, [selectedClassId]); // Se déclenche quand la classe sélectionnée change
 
-    const handleSubmissionClick = (taskId) => {
-        setSubmittingTaskId(taskId);
-        setSubmissionFilePath('');
-        setSubmissionContent('');
-        setSubmissionMessage('');
-    };
+    try {
+      const response = await axios.post(
+        `/api/tasks/${submittingTaskId}/submit`,
+        { file_path: submissionFilePath, content: submissionContent },
+        { headers: { "x-auth-token": token } }
+      );
+      setSubmissionMessage(response.data.message);
+      setSubmittingTaskId(null);
+      setSubmissionFilePath("");
+      setSubmissionContent("");
+    } catch (error) {
+      setSubmissionMessage(
+        error.response?.data?.message || "Erreur lors de la soumission."
+      );
+      console.error("Erreur:", error);
+    }
+  };
 
-    const handleSubmission = async (e) => {
-        e.preventDefault();
-        setSubmissionMessage('');
-        const token = localStorage.getItem('token');
+  return (
+    <div className="task-management-container">
+      <div className="task-header">
+        <h2>Gestion des Tâches</h2>
+        <div className="header-divider"></div>
+      </div>
 
-        if (!submissionFilePath && !submissionContent) {
-            setSubmissionMessage('Veuillez fournir un lien/chemin ou un contenu pour la soumission.');
-            return;
-        }
-
-        try {
-            const response = await axios.post(
-                `/api/tasks/${submittingTaskId}/submit`,
-                { file_path: submissionFilePath, content: submissionContent },
-                {
-                    headers: {
-                        'x-auth-token': token
-                    }
-                }
-            );
-            setSubmissionMessage(response.data.message);
-            setSubmittingTaskId(null); // Fermer le formulaire après soumission
-            // Optionnel: rafraîchir la liste des tâches pour montrer le statut de soumission si implémenté
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Erreur lors de la soumission de la tâche.';
-            setSubmissionMessage(errorMessage);
-            console.error('Erreur soumission tâche :', error.response?.data || error.message);
-        }
-    };
-
-    return (
-        <div className="task-list-container">
-            <h2>Tâches des Classes</h2>
-            {message && <p className="message-info">{message}</p>}
-
-            {userClasses.length > 0 && (
-                <div className="class-select-group">
-                    <label htmlFor="selectClassTaskToView">Voir les tâches pour :</label>
-                    <select
-                        id="selectClassTaskToView"
-                        value={selectedClassId}
-                        onChange={(e) => setSelectedClassId(e.target.value)}
-                        className="form-select"
-                    >
-                        {userClasses.map(cla => (
-                            <option key={cla.id} value={cla.id}>{cla.nom}</option>
-                        ))}
-                    </select>
-                </div>
-            )}
-
-            {loading ? (
-                <p>Chargement des tâches...</p>
-            ) : (
-                selectedClassId && tasks.length > 0 ? (
-                    <div className="tasks-grid">
-                        {tasks.map(task => (
-                            <div key={task.id} className="task-card">
-                                <h3>{task.titre}</h3>
-                                {task.description && <p className="task-description">{task.description}</p>}
-                                <p className="task-meta">
-                                    Date limite : {new Date(task.date_limite).toLocaleString()}
-                                </p>
-                                <p className="task-meta">
-                                    Assigné par {task.professeurNom} {task.professeurPrenom} le {new Date(task.created_at).toLocaleDateString()}
-                                </p>
-
-                                {userRole === 'Etudiant' && (
-                                    <button
-                                        className="submit-task-button"
-                                        onClick={() => handleSubmissionClick(task.id)}
-                                    >
-                                        Soumettre le travail
-                                    </button>
-                                )}
-
-                                {submittingTaskId === task.id && userRole === 'Etudiant' && (
-                                    <form onSubmit={handleSubmission} className="submission-form">
-                                        <h4>Soumettre pour "{task.titre}"</h4>
-                                        <div className="form-group">
-                                            <label htmlFor={`filePath-${task.id}`}>Lien/Chemin du fichier (URL) :</label>
-                                            <input
-                                                type="url"
-                                                id={`filePath-${task.id}`}
-                                                value={submissionFilePath}
-                                                onChange={(e) => setSubmissionFilePath(e.target.value)}
-                                                className="form-input"
-                                                placeholder="ex: https://github.com/mon-projet"
-                                            />
-                                        </div>
-                                        <div className="form-group">
-                                            <label htmlFor={`content-${task.id}`}>Contenu textuel (optionnel) :</label>
-                                            <textarea
-                                                id={`content-${task.id}`}
-                                                value={submissionContent}
-                                                onChange={(e) => setSubmissionContent(e.target.value)}
-                                                className="form-textarea"
-                                                rows="3"
-                                                placeholder="Vos commentaires ou réponse directe..."
-                                            ></textarea>
-                                        </div>
-                                        <button type="submit" className="submit-button">Envoyer la soumission</button>
-                                        <button type="button" className="cancel-button" onClick={() => setSubmittingTaskId(null)}>Annuler</button>
-                                        {submissionMessage && <p className="submission-message">{submissionMessage}</p>}
-                                    </form>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    selectedClassId && !message && <p>Sélectionnez une classe pour voir ses tâches.</p>
-                )
-            )}
+      {message && (
+        <div
+          className={`status-message ${
+            message.includes("Erreur") ? "error" : "info"
+          }`}
+        >
+          {message}
         </div>
-    );
+      )}
+
+      {userClasses.length > 0 && (
+        <div className="class-selector">
+          <div className="selector-label">
+            <span>Classe :</span>
+            <select
+              value={selectedClassId}
+              onChange={(e) => setSelectedClassId(e.target.value)}
+              disabled={loading}
+            >
+              {userClasses.map((cla) => (
+                <option key={cla.id} value={cla.id}>
+                  {cla.nom}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="loading-indicator">
+          <div className="spinner"></div>
+          <span>Chargement des tâches...</span>
+        </div>
+      ) : (
+        <div className="tasks-container">
+          {tasks.length > 0
+            ? tasks.map((task) => (
+                <div key={task.id} className="task-card">
+                  <div className="task-header">
+                    <h3>{task.titre}</h3>
+                    <span className="deadline-badge">
+                      {new Date(task.date_limite).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  {task.description && (
+                    <div className="task-description">
+                      <p>{task.description}</p>
+                    </div>
+                  )}
+
+                  <div className="task-meta">
+                    <span className="meta-item">
+                      <i className="icon-user"></i>
+                      {task.professeurNom} {task.professeurPrenom}
+                    </span>
+                    <span className="meta-item">
+                      <i className="icon-calendar"></i>
+                      {new Date(task.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  {userRole === "Etudiant" && (
+                    <div className="task-actions">
+                      <button
+                        onClick={() => setSubmittingTaskId(task.id)}
+                        className="action-button primary"
+                      >
+                        <i className="icon-upload"></i> Soumettre
+                      </button>
+                    </div>
+                  )}
+
+                  {submittingTaskId === task.id && (
+                    <div className="submission-form-container">
+                      <form
+                        onSubmit={handleSubmission}
+                        className="submission-form"
+                      >
+                        <h4>Soumission pour "{task.titre}"</h4>
+
+                        <div className="form-group">
+                          <label>Lien vers votre travail</label>
+                          <input
+                            type="url"
+                            value={submissionFilePath}
+                            onChange={(e) =>
+                              setSubmissionFilePath(e.target.value)
+                            }
+                            placeholder="https://github.com/votre-projet"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label>Contenu textuel (optionnel)</label>
+                          <textarea
+                            value={submissionContent}
+                            onChange={(e) =>
+                              setSubmissionContent(e.target.value)
+                            }
+                            rows="3"
+                            placeholder="Décrivez votre travail ou incluez votre réponse..."
+                          ></textarea>
+                        </div>
+
+                        <div className="form-actions">
+                          <button type="submit" className="submit-button">
+                            Envoyer
+                          </button>
+                          <button
+                            type="button"
+                            className="cancel-button"
+                            onClick={() => setSubmittingTaskId(null)}
+                          >
+                            Annuler
+                          </button>
+                        </div>
+
+                        {submissionMessage && (
+                          <div className="submission-message">
+                            {submissionMessage}
+                          </div>
+                        )}
+                      </form>
+                    </div>
+                  )}
+                </div>
+              ))
+            : selectedClassId && (
+                <div className="empty-state">
+                  Aucune tâche disponible pour cette classe.
+                </div>
+              )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default TaskList;

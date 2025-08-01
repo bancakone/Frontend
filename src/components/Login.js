@@ -1,79 +1,96 @@
-// src/components/Login.js
-import React, { useState } from 'react';
-import axios from 'axios';
-import './Login.css'; // Importe le fichier CSS pour les styles
+import axios from "axios";
+import { useState } from "react";
+import "./JoinClass.css";
 
-function Login({ onLoginSuccess, onAuthSwitch }) {
-  const [email, setEmail] = useState('');
-  const [motDePasse, setMotDePasse] = useState('');
-  const [message, setMessage] = useState('');
+function JoinClass({ onClassJoined }) {
+  const [classCode, setClassCode] = useState("");
+  const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post('/api/auth/login', {
-        email,
-        motDePasse,
-      });
-      setMessage(response.data.message);
-      localStorage.setItem('token', response.data.token);
-      // Note : Il est préférable de gérer l'état utilisateur via App.js
-      // plutôt que via localStorage pour les besoins d'affichage.
-      
-      console.log('Connexion réussie :', response.data);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    setIsLoading(true);
 
-      // --- CHANGEMENT CRUCIAL ICI ---
-      // L'API doit retourner un objet 'user' dans la réponse.
-      // Nous passons cet objet à la fonction onLoginSuccess.
-      if (onLoginSuccess && response.data.user) {
-        onLoginSuccess(response.data.user); // Passe les données utilisateur à App.js
-      }
-      // --- FIN DU CHANGEMENT CRUCIAL ---
-      
-    } catch (error) {
-      setMessage(error.response?.data?.message || 'Erreur lors de la connexion.');
-      console.error('Erreur connexion :', error.response?.data || error.message);
-    }
-  };
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
 
-  return (
-    <div className="login-container">
-      <h2>Connexion</h2>
-      <form onSubmit={handleSubmit} className="login-form">
-        <div className="form-group">
-          <label>Email :</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="form-input"
-          />
-        </div>
-        <div className="form-group">
-          <label>Mot de passe :</label>
-          <input
-            type="password"
-            value={motDePasse}
-            onChange={(e) => setMotDePasse(e.target.value)}
-            required
-            className="form-input"
-          />
-        </div>
-        <button type="submit" className="login-button">
-          Se connecter
-        </button>
-      </form>
-      {message && <p className="message-info">{message}</p>}
-      {/* Ajout du bouton de bascule vers l'inscription */}
-      <p className="switch-auth">
-        Pas encore de compte ?{' '}
-        <button type="button" onClick={() => onAuthSwitch('Inscription')} className="link-button">
-          S'inscrire
-        </button>
-      </p>
-    </div>
-  );
+    if (!token || !user) {
+      setMessage("Vous devez être connecté pour rejoindre une classe.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (user.role !== "Etudiant") {
+      setMessage("Seuls les étudiants peuvent rejoindre une classe par code.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "/api/classes/join",
+        { code: classCode },
+        { headers: { "x-auth-token": token } }
+      );
+
+      setMessage(response.data.message);
+      setClassCode("");
+
+      if (onClassJoined) onClassJoined();
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Erreur lors de l'inscription à la classe.";
+      setMessage(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="join-class-card">
+      <div className="card-header">
+        <h2>Rejoindre une Classe</h2>
+        <div className="decorative-line"></div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="join-class-form">
+        <div className="input-group">
+          <label htmlFor="classCode">Code d'accès</label>
+          <input
+            type="text"
+            id="classCode"
+            value={classCode}
+            onChange={(e) => setClassCode(e.target.value.toUpperCase())}
+            placeholder="Ex: ABC123"
+            className="modern-input"
+            required
+            maxLength="6"
+          />
+          <span className="input-hint">6 caractères maximum</span>
+        </div>
+
+        <button type="submit" className="primary-button" disabled={isLoading}>
+          {isLoading ? (
+            <span className="button-loader"></span>
+          ) : (
+            "Rejoindre la classe"
+          )}
+        </button>
+      </form>
+
+      {message && (
+        <div
+          className={`message-bubble ${
+            message.includes("Erreur") ? "error" : "success"
+          }`}
+        >
+          {message}
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default Login;
+export default JoinClass;

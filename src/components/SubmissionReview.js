@@ -1,301 +1,402 @@
-// src/components/SubmissionReview.js
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './SubmissionReview.css'; // Pour les styles CSS purs
+import axios from "axios";
+import { useEffect, useState } from "react";
+import "./SubmissionReview.css";
 
 function SubmissionReview() {
-    const [professorClasses, setProfessorClasses] = useState([]); // Classes du professeur
-    const [selectedClassId, setSelectedClassId] = useState(''); // Classe sélectionnée
-    const [tasks, setTasks] = useState([]); // Tâches de la classe sélectionnée
-    const [selectedTaskId, setSelectedTaskId] = useState(''); // Tâche sélectionnée
-    const [submissions, setSubmissions] = useState([]); // Soumissions pour la tâche sélectionnée
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [user, setUser] = useState(null);
+  const [state, setState] = useState({
+    classes: [],
+    tasks: [],
+    submissions: [],
+    selectedClassId: "",
+    selectedTaskId: "",
+    loading: false,
+    error: "",
+    user: null,
+  });
 
-    // Pour la notation
-    const [gradingSubmissionId, setGradingSubmissionId] = useState(null);
-    const [grade, setGrade] = useState('');
-    const [feedback, setFeedback] = useState('');
-    const [gradingMessage, setGradingMessage] = useState('');
+  const [grading, setGrading] = useState({
+    submissionId: null,
+    grade: "",
+    feedback: "",
+    message: "",
+  });
 
-    // Charger les classes du professeur au montage
-    useEffect(() => {
-        const fetchProfessorClasses = async () => {
-            const token = localStorage.getItem('token');
-            const loggedInUser = JSON.parse(localStorage.getItem('user'));
-            setUser(loggedInUser);
+  // Chargement initial des données
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user"));
 
-            if (!token || !loggedInUser || loggedInUser.role !== 'Professeur') {
-                setMessage('Vous devez être connecté en tant que professeur pour corriger les soumissions.');
-                setProfessorClasses([]);
-                return;
-            }
+      if (!token || !user || user.role !== "Professeur") {
+        setState((prev) => ({
+          ...prev,
+          error: "Accès réservé aux professeurs",
+          user,
+        }));
+        return;
+      }
 
-            try {
-                const response = await axios.get(
-                    '/api/classes/professeur',
-                    {
-                        headers: {
-                            'x-auth-token': token
-                        }
-                    }
-                );
-                setProfessorClasses(response.data);
-                if (response.data.length > 0) {
-                    setSelectedClassId(response.data[0].id); // Sélectionne la première classe par défaut
-                } else {
-                    setMessage('Vous n\'avez pas encore créé de classes.');
-                }
-            } catch (error) {
-                const errorMessage = error.response?.data?.message || 'Erreur lors du chargement de vos classes.';
-                setMessage(errorMessage);
-                console.error('Erreur chargement classes professeur (SubmissionReview) :', error.response?.data || error.message);
-            }
-        };
+      try {
+        const response = await axios.get("/api/classes/professeur", {
+          headers: { "x-auth-token": token },
+        });
 
-        fetchProfessorClasses();
-    }, []);
-
-    // Charger les tâches lorsque la classe sélectionnée change
-    useEffect(() => {
-        const fetchTasks = async () => {
-            if (!selectedClassId) {
-                setTasks([]);
-                setSubmissions([]);
-                return;
-            }
-            setLoading(true);
-            setMessage('');
-            const token = localStorage.getItem('token');
-
-            try {
-                const response = await axios.get(
-                    `/api/tasks/class/${selectedClassId}`,
-                    {
-                        headers: {
-                            'x-auth-token': token
-                        }
-                    }
-                );
-                setTasks(response.data);
-                if (response.data.length > 0) {
-                    setSelectedTaskId(''); // Réinitialise la tâche sélectionnée quand la classe change
-                    setSubmissions([]); // Réinitialise les soumissions
-                    setMessage('');
-                } else {
-                    setMessage('Aucune tâche assignée pour cette classe.');
-                    setSelectedTaskId('');
-                    setSubmissions([]);
-                }
-            } catch (error) {
-                const errorMessage = error.response?.data?.message || 'Erreur lors du chargement des tâches.';
-                setMessage(errorMessage);
-                setTasks([]);
-                setSelectedTaskId('');
-                setSubmissions([]);
-                console.error('Erreur chargement tâches (SubmissionReview) :', error.response?.data || error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        if (selectedClassId) {
-            fetchTasks();
-        }
-    }, [selectedClassId]);
-
-    // Charger les soumissions lorsque la tâche sélectionnée change
-    useEffect(() => {
-        const fetchSubmissions = async () => {
-            if (!selectedTaskId) {
-                setSubmissions([]);
-                return;
-            }
-            setLoading(true);
-            setMessage('');
-            const token = localStorage.getItem('token');
-
-            try {
-                const response = await axios.get(
-                    `/api/tasks/${selectedTaskId}/submissions`,
-                    {
-                        headers: {
-                            'x-auth-token': token
-                        }
-                    }
-                );
-                setSubmissions(response.data);
-                if (response.data.length === 0) {
-                    setMessage('Aucune soumission pour cette tâche.');
-                }
-            } catch (error) {
-                const errorMessage = error.response?.data?.message || 'Erreur lors du chargement des soumissions.';
-                setMessage(errorMessage);
-                setSubmissions([]);
-                console.error('Erreur chargement soumissions :', error.response?.data || error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        if (selectedTaskId) {
-            fetchSubmissions();
-        }
-    }, [selectedTaskId]);
-
-    const handleGradeClick = (submissionId, currentGrade, currentFeedback) => {
-        setGradingSubmissionId(submissionId);
-        setGrade(currentGrade || '');
-        setFeedback(currentFeedback || '');
-        setGradingMessage('');
+        setState((prev) => ({
+          ...prev,
+          classes: response.data,
+          user,
+          selectedClassId: response.data[0]?.id || "",
+          error: response.data.length === 0 ? "Aucune classe assignée" : "",
+        }));
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          error: error.response?.data?.message || "Erreur de chargement",
+          user,
+        }));
+      }
     };
 
-    const handleGradeSubmit = async (e) => {
-        e.preventDefault();
-        setGradingMessage('');
-        const token = localStorage.getItem('token');
+    fetchData();
+  }, []);
 
-        try {
-            const response = await axios.put(
-                `/api/submissions/${gradingSubmissionId}/grade`,
-                { grade: parseInt(grade), feedback },
-                {
-                    headers: {
-                        'x-auth-token': token
-                    }
-                }
-            );
-            setGradingMessage(response.data.message);
-            setGradingSubmissionId(null); // Fermer le formulaire après soumission
+  // Charger les tâches quand la classe change
+  useEffect(() => {
+    const fetchTasks = async () => {
+      if (!state.selectedClassId) return;
 
-            // Mettre à jour la soumission dans la liste localement
-            setSubmissions(prevSubmissions =>
-                prevSubmissions.map(sub =>
-                    sub.id === gradingSubmissionId
-                        ? { ...sub, grade: parseInt(grade), correction_feedback: feedback }
-                        : sub
-                )
-            );
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Erreur lors de la notation de la soumission.';
-            setGradingMessage(errorMessage);
-            console.error('Erreur notation soumission :', error.response?.data || error.message);
-        }
+      setState((prev) => ({ ...prev, loading: true }));
+
+      try {
+        const response = await axios.get(
+          `/api/tasks/class/${state.selectedClassId}`,
+          {
+            headers: { "x-auth-token": localStorage.getItem("token") },
+          }
+        );
+
+        setState((prev) => ({
+          ...prev,
+          tasks: response.data,
+          selectedTaskId: "",
+          submissions: [],
+          error: response.data.length === 0 ? "Aucune tâche trouvée" : "",
+        }));
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          error: error.response?.data?.message || "Erreur de chargement",
+        }));
+      } finally {
+        setState((prev) => ({ ...prev, loading: false }));
+      }
     };
 
-    if (user && user.role !== 'Professeur') {
-        return <div className="submission-review-container"><p className="message-info error">Vous n'avez pas l'autorisation de corriger les soumissions.</p></div>;
+    fetchTasks();
+  }, [state.selectedClassId]);
+
+  // Charger les soumissions quand la tâche change
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      if (!state.selectedTaskId) return;
+
+      setState((prev) => ({ ...prev, loading: true }));
+
+      try {
+        const response = await axios.get(
+          `/api/tasks/${state.selectedTaskId}/submissions`,
+          {
+            headers: { "x-auth-token": localStorage.getItem("token") },
+          }
+        );
+
+        setState((prev) => ({
+          ...prev,
+          submissions: response.data,
+          error: response.data.length === 0 ? "Aucune soumission trouvée" : "",
+        }));
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          error: error.response?.data?.message || "Erreur de chargement",
+        }));
+      } finally {
+        setState((prev) => ({ ...prev, loading: false }));
+      }
+    };
+
+    fetchSubmissions();
+  }, [state.selectedTaskId]);
+
+  const handleGradeSubmit = async (e) => {
+    e.preventDefault();
+    setGrading((prev) => ({ ...prev, message: "" }));
+
+    try {
+      const response = await axios.put(
+        `/api/submissions/${grading.submissionId}/grade`,
+        {
+          grade: parseInt(grading.grade),
+          feedback: grading.feedback,
+        },
+        { headers: { "x-auth-token": localStorage.getItem("token") } }
+      );
+
+      setGrading((prev) => ({
+        ...prev,
+        message: response.data.message,
+        submissionId: null,
+      }));
+
+      // Mise à jour locale
+      setState((prev) => ({
+        ...prev,
+        submissions: prev.submissions.map((sub) =>
+          sub.id === grading.submissionId
+            ? {
+                ...sub,
+                grade: parseInt(grading.grade),
+                correction_feedback: grading.feedback,
+              }
+            : sub
+        ),
+      }));
+    } catch (error) {
+      setGrading((prev) => ({
+        ...prev,
+        message: error.response?.data?.message || "Erreur lors de la notation",
+      }));
     }
+  };
 
+  if (state.user && state.user.role !== "Professeur") {
     return (
-        <div className="submission-review-container">
-            <h2>Corriger les Soumissions</h2>
-            {message && <p className="message-info">{message}</p>}
+      <div className="unauthorized-container">
+        <div className="unauthorized-content">
+          <h2>Accès non autorisé</h2>
+          <p>Cette fonctionnalité est réservée aux professeurs.</p>
+        </div>
+      </div>
+    );
+  }
 
-            {professorClasses.length > 0 ? (
-                <>
-                    <div className="class-task-select-group">
-                        <label htmlFor="selectClassReview">Sélectionnez la classe :</label>
-                        <select
-                            id="selectClassReview"
-                            value={selectedClassId}
-                            onChange={(e) => setSelectedClassId(e.target.value)}
-                            className="form-select"
-                            required
-                        >
-                            {professorClasses.map(cla => (
-                                <option key={cla.id} value={cla.id}>{cla.nom}</option>
-                            ))}
-                        </select>
+  return (
+    <div className="submission-review-container">
+      <header className="review-header">
+        <h1>Correction des Soumissions</h1>
+        <p>Évaluez les travaux rendus par vos étudiants</p>
+      </header>
+
+      {state.error && (
+        <div
+          className={`alert-message ${
+            state.error.includes("Aucune") ? "info" : "error"
+          }`}
+        >
+          {state.error}
+        </div>
+      )}
+
+      <div className="selection-panel">
+        <div className="select-group">
+          <label>Classe</label>
+          <select
+            value={state.selectedClassId}
+            onChange={(e) =>
+              setState((prev) => ({ ...prev, selectedClassId: e.target.value }))
+            }
+            disabled={state.loading}
+          >
+            {state.classes.map((classe) => (
+              <option key={classe.id} value={classe.id}>
+                {classe.nom}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {state.selectedClassId && (
+          <div className="select-group">
+            <label>Tâche</label>
+            <select
+              value={state.selectedTaskId}
+              onChange={(e) =>
+                setState((prev) => ({
+                  ...prev,
+                  selectedTaskId: e.target.value,
+                }))
+              }
+              disabled={state.loading || state.tasks.length === 0}
+            >
+              <option value="">Sélectionnez une tâche</option>
+              {state.tasks.map((task) => (
+                <option key={task.id} value={task.id}>
+                  {task.titre}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {state.loading ? (
+        <div className="loading-indicator">
+          <div className="spinner"></div>
+          <p>Chargement en cours...</p>
+        </div>
+      ) : (
+        state.selectedTaskId && (
+          <div className="submissions-section">
+            <h2>Soumissions à corriger</h2>
+
+            {state.submissions.length > 0 ? (
+              <div className="submissions-grid">
+                {state.submissions.map((submission) => (
+                  <div key={submission.id} className="submission-card">
+                    <div className="card-header">
+                      <h3>
+                        {submission.studentPrenom} {submission.studentNom}
+                      </h3>
+                      <span className="submission-date">
+                        {new Date(submission.submitted_at).toLocaleDateString(
+                          "fr-FR"
+                        )}
+                      </span>
                     </div>
 
-                    {selectedClassId && tasks.length > 0 && (
-                        <div className="class-task-select-group">
-                            <label htmlFor="selectTaskReview">Sélectionnez la tâche :</label>
-                            <select
-                                id="selectTaskReview"
-                                value={selectedTaskId}
-                                onChange={(e) => setSelectedTaskId(e.target.value)}
-                                className="form-select"
-                                required
-                            >
-                                <option value="">-- Sélectionnez une tâche --</option>
-                                {tasks.map(task => (
-                                    <option key={task.id} value={task.id}>{task.titre}</option>
-                                ))}
-                            </select>
+                    <div className="card-content">
+                      {submission.file_path && (
+                        <a
+                          href={submission.file_path}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="file-link"
+                        >
+                          📄 Voir le fichier soumis
+                        </a>
+                      )}
+                      {submission.content && (
+                        <div className="submission-text">
+                          <p>{submission.content}</p>
                         </div>
-                    )}
+                      )}
+                    </div>
 
-                    {loading ? (
-                        <p>Chargement des données...</p>
+                    {grading.submissionId === submission.id ? (
+                      <form
+                        onSubmit={handleGradeSubmit}
+                        className="grading-form"
+                      >
+                        <div className="form-group">
+                          <label>Note (0-100)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={grading.grade}
+                            onChange={(e) =>
+                              setGrading((prev) => ({
+                                ...prev,
+                                grade: e.target.value,
+                              }))
+                            }
+                            required
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Feedback</label>
+                          <textarea
+                            value={grading.feedback}
+                            onChange={(e) =>
+                              setGrading((prev) => ({
+                                ...prev,
+                                feedback: e.target.value,
+                              }))
+                            }
+                            rows="4"
+                          />
+                        </div>
+                        <div className="form-actions">
+                          <button type="submit" className="primary-button">
+                            Enregistrer
+                          </button>
+                          <button
+                            type="button"
+                            className="secondary-button"
+                            onClick={() =>
+                              setGrading((prev) => ({
+                                ...prev,
+                                submissionId: null,
+                              }))
+                            }
+                          >
+                            Annuler
+                          </button>
+                        </div>
+                        {grading.message && (
+                          <div
+                            className={`form-message ${
+                              grading.message.includes("succès")
+                                ? "success"
+                                : "error"
+                            }`}
+                          >
+                            {grading.message}
+                          </div>
+                        )}
+                      </form>
                     ) : (
-                        selectedTaskId && submissions.length > 0 ? (
-                            <div className="submissions-grid">
-                                {submissions.map(submission => (
-                                    <div key={submission.id} className="submission-card">
-                                        <h3>Soumission de {submission.studentPrenom} {submission.studentNom}</h3>
-                                        <p>Soumis le : {new Date(submission.submitted_at).toLocaleString()}</p>
-                                        {submission.file_path && (
-                                            <p><a href={submission.file_path} target="_blank" rel="noopener noreferrer">Voir le fichier soumis</a></p>
-                                        )}
-                                        {submission.content && <p className="submission-content">**Contenu :** {submission.content}</p>}
-
-                                        {submission.grade !== null && <p className="grade-display">Note : {submission.grade} / 100</p>}
-                                        {submission.correction_feedback && <p className="feedback-display">Feedback : {submission.correction_feedback}</p>}
-
-                                        {gradingSubmissionId === submission.id ? (
-                                            <form onSubmit={handleGradeSubmit} className="grading-form">
-                                                <h4>Noter la soumission</h4>
-                                                <div className="form-group">
-                                                    <label htmlFor={`grade-${submission.id}`}>Note (0-100) :</label>
-                                                    <input
-                                                        type="number"
-                                                        id={`grade-${submission.id}`}
-                                                        value={grade}
-                                                        onChange={(e) => setGrade(e.target.value)}
-                                                        className="form-input"
-                                                        min="0"
-                                                        max="100"
-                                                        required
-                                                    />
-                                                </div>
-                                                <div className="form-group">
-                                                    <label htmlFor={`feedback-${submission.id}`}>Feedback :</label>
-                                                    <textarea
-                                                        id={`feedback-${submission.id}`}
-                                                        value={feedback}
-                                                        onChange={(e) => setFeedback(e.target.value)}
-                                                        className="form-textarea"
-                                                        rows="4"
-                                                    ></textarea>
-                                                </div>
-                                                <button type="submit" className="grade-button">Enregistrer la note</button>
-                                                <button type="button" className="cancel-button" onClick={() => setGradingSubmissionId(null)}>Annuler</button>
-                                                {gradingMessage && <p className="grading-message">{gradingMessage}</p>}
-                                            </form>
-                                        ) : (
-                                            <button
-                                                className="grade-button"
-                                                onClick={() => handleGradeClick(submission.id, submission.grade, submission.correction_feedback)}
-                                            >
-                                                {submission.grade !== null ? 'Modifier Note/Feedback' : 'Noter cette soumission'}
-                                            </button>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
+                      <div className="grading-status">
+                        {submission.grade !== null ? (
+                          <div className="graded-info">
+                            <span className="grade-badge">
+                              Note: {submission.grade}/100
+                            </span>
+                            <button
+                              className="edit-button"
+                              onClick={() =>
+                                setGrading({
+                                  submissionId: submission.id,
+                                  grade: submission.grade,
+                                  feedback:
+                                    submission.correction_feedback || "",
+                                  message: "",
+                                })
+                              }
+                            >
+                              Modifier
+                            </button>
+                          </div>
                         ) : (
-                            selectedTaskId && !message && <p>Sélectionnez une tâche pour voir ses soumissions ou aucune soumission n'a été faite.</p>
-                        )
+                          <button
+                            className="grade-button"
+                            onClick={() =>
+                              setGrading({
+                                submissionId: submission.id,
+                                grade: "",
+                                feedback: "",
+                                message: "",
+                              })
+                            }
+                          >
+                            Noter cette soumission
+                          </button>
+                        )}
+                      </div>
                     )}
-                </>
+                  </div>
+                ))}
+              </div>
             ) : (
-                user && user.role === 'Professeur' && !message.includes("Vous n'avez pas encore créé") && (
-                    <p className="message-info">Chargement de vos classes...</p>
-                )
+              <div className="empty-state">
+                <p>Aucune soumission à afficher pour cette tâche</p>
+              </div>
             )}
-        </div>
-    );
+          </div>
+        )
+      )}
+    </div>
+  );
 }
 
 export default SubmissionReview;

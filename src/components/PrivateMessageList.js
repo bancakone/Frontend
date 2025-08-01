@@ -1,75 +1,109 @@
-// src/components/PrivateMessageList.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './PrivateMessageList.css';
 
 function PrivateMessageList() {
-    const [privateMessages, setPrivateMessages] = useState([]);
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [currentUserId, setCurrentUserId] = useState(null);
+    const [messages, setMessages] = useState([]);
+    const [status, setStatus] = useState({ loading: true, message: '' });
+    const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
-        const fetchPrivateMessages = async () => {
+        const fetchMessages = async () => {
             const token = localStorage.getItem('token');
             const user = JSON.parse(localStorage.getItem('user'));
-            setCurrentUserId(user ? user.id : null);
+            setCurrentUser(user);
 
             if (!token || !user) {
-                setMessage('Vous devez être connecté pour voir vos messages privés.');
-                setLoading(false);
+                setStatus({ loading: false, message: 'Connectez-vous pour voir vos messages' });
                 return;
             }
 
             try {
-                const response = await axios.get(
-                    '/api/messages/private/me', // Cette route backend est déjà créée
-                    { headers: { 'x-auth-token': token } }
-                );
-                setPrivateMessages(response.data);
-                if (response.data.length === 0) {
-                    setMessage('Vous n\'avez aucun message privé.');
-                } else {
-                    setMessage('');
-                }
+                const response = await axios.get('/api/messages/private/me', {
+                    headers: { 'x-auth-token': token }
+                });
+                
+                setMessages(response.data);
+                setStatus({
+                    loading: false,
+                    message: response.data.length === 0 ? 'Aucun message privé' : ''
+                });
             } catch (error) {
-                const errorMessage = error.response?.data?.message || 'Erreur lors du chargement de vos messages privés.';
-                setMessage(errorMessage);
-                console.error('Erreur chargement messages privés :', error.response?.data || error.message);
-            } finally {
-                setLoading(false);
+                setStatus({
+                    loading: false,
+                    message: error.response?.data?.message || 'Erreur de chargement'
+                });
+                console.error('Erreur:', error);
             }
         };
-        fetchPrivateMessages();
-    }, []); // Exécute une fois au chargement du composant
 
-    if (loading) {
-        return <div className="private-message-list-container"><p>Chargement de vos messages privés...</p></div>;
+        fetchMessages();
+    }, []);
+
+    if (status.loading) {
+        return (
+            <div className="messages-loading">
+                <div className="loading-spinner"></div>
+                <span>Chargement des messages...</span>
+            </div>
+        );
     }
 
     return (
-        <div className="private-message-list-container">
-            <h2>Mes Messages Privés</h2>
-            {message && <p className="message-info">{message}</p>}
+        <div className="messages-container">
+            <div className="messages-header">
+                <h2>Messages Privés</h2>
+                <div className="header-divider"></div>
+            </div>
 
-            {privateMessages.length > 0 ? (
+            {status.message && (
+                <div className={`status-message ${status.message.includes('Erreur') ? 'error' : 'info'}`}>
+                    {status.message}
+                </div>
+            )}
+
+            {messages.length > 0 ? (
                 <div className="messages-list">
-                    {privateMessages.map(msg => (
-                        <div key={msg.id} className={`message-item ${msg.senderId === currentUserId ? 'sent' : 'received'}`}>
+                    {messages.map(msg => (
+                        <div key={msg.id} className={`message ${msg.senderId === currentUser?.id ? 'sent' : 'received'}`}>
                             <div className="message-header">
-                                {msg.senderId === currentUserId ? (
-                                    <span className="sender-info">À : <strong>{msg.receiverPrenom} {msg.receiverNom}</strong> ({msg.receiverRole})</span>
-                                ) : (
-                                    <span className="sender-info">De : <strong>{msg.senderPrenom} {msg.senderNom}</strong> ({msg.senderRole})</span>
-                                )}
-                                <span className="message-date">{new Date(msg.created_at).toLocaleString()}</span>
+                                <div className="sender-info">
+                                    {msg.senderId === currentUser?.id ? (
+                                        <>
+                                            <span className="label">À :</span>
+                                            <span className="name">{msg.receiverPrenom} {msg.receiverNom}</span>
+                                            <span className="role">{msg.receiverRole}</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="label">De :</span>
+                                            <span className="name">{msg.senderPrenom} {msg.senderNom}</span>
+                                            <span className="role">{msg.senderRole}</span>
+                                        </>
+                                    )}
+                                </div>
+                                <div className="message-date">
+                                    {new Date(msg.created_at).toLocaleString('fr-FR', {
+                                        day: 'numeric',
+                                        month: 'short',
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </div>
                             </div>
-                            <p className="message-content">{msg.content}</p>
+                            <div className="message-content">
+                                <p>{msg.content}</p>
+                            </div>
                         </div>
                     ))}
                 </div>
             ) : (
-                !message && <p className="no-messages-found">Aucun message privé à afficher.</p>
+                !status.message && (
+                    <div className="empty-state">
+                        <p>Vous n'avez aucun message</p>
+                    </div>
+                )
             )}
         </div>
     );
