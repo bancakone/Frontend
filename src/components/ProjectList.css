@@ -1,266 +1,416 @@
-/* src/components/ProjectList.css */
-.project-list-container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 25px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+:root {
+  --primary: #4361ee;
+  --primary-light: #eef2ff;
+  --secondary: #3f37c9;
+  --success: #4cc9f0;
+  --danger: #f72585;
+  --warning: #f8961e;
+  --dark: #2b2d42;
+  --light: #f8f9fa;
+  --gray: #adb5bd;
+  --border-radius: 12px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --transition: all 0.3s ease;
+}
+
+.projects-dashboard {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
   text-align: center;
 }
 
-.project-list-container h2 {
+.dashboard-header h2 {
+  color: var(--dark);
   font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 25px;
-  color: #333;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
-.form-group.class-select {
-    margin-bottom: 20px;
-    text-align: left;
+.header-divider {
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--success));
+  margin: 0 auto;
+  border-radius: 2px;
 }
 
-.form-group.class-select label {
-    display: block;
-    color: #4a4a4a;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 5px;
+.status-message {
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: var(--border-radius);
+  text-align: center;
+  animation: fadeIn 0.3s ease-out;
 }
 
-.form-select {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
+.status-message.success {
+  background-color: rgba(76, 201, 240, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(76, 201, 240, 0.3);
+}
+
+.status-message.error {
+  background-color: rgba(247, 37, 133, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(247, 37, 133, 0.3);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.projects-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem;
+  color: var(--gray);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(67, 97, 238, 0.1);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.class-selector {
+  margin-bottom: 2rem;
+}
+
+.selector-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.selector-label span {
+  font-weight: 500;
+  color: var(--dark);
+}
+
+.selector-label select {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--gray);
+  border-radius: var(--border-radius);
+  background-color: white;
   font-size: 1rem;
-  color: #333;
+  transition: var(--transition);
+  min-width: 250px;
 }
 
-.form-select:focus {
+.selector-label select:focus {
   outline: none;
-  border-color: #6a67d0;
-  box-shadow: 0 0 0 2px rgba(106, 103, 208, 0.2);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+}
+
+.no-classes-message,
+.no-projects {
+  text-align: center;
+  padding: 2rem;
+  color: var(--gray);
+  font-style: italic;
 }
 
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 30px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
 }
 
 .project-card {
-  background-color: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  text-align: left;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  transition: var(--transition);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
 }
 
-.project-card h3 {
-    font-size: 1.6rem;
-    color: #007bff;
-    margin-bottom: 10px;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 5px;
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
-.project-card .project-description {
-    font-size: 0.95rem;
-    color: #555;
-    margin-bottom: 10px;
+.card-header {
+  margin-bottom: 1rem;
 }
 
-.project-card .project-dates {
-    font-size: 0.85rem;
-    color: #777;
-    margin-bottom: 8px;
+.card-header h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--dark);
+  font-size: 1.3rem;
+  font-weight: 600;
 }
 
-.project-card .project-status {
-    font-size: 0.9rem;
-    font-weight: bold;
-    margin-bottom: 15px;
+.project-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--gray);
 }
 
-.project-card .project-status .status-actif { color: #28a745; } /* Vert */
-.project-card .project-status .status-terminé { color: #dc3545; } /* Rouge */
-.project-card .project-status .status-archivé { color: #6c757d; } /* Gris */
-
-.project-groups h4 {
-    font-size: 1.1rem;
-    color: #444;
-    margin-top: 15px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 5px;
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
-.project-groups ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
-.group-item {
-    background-color: #e9ecef;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
+.status-badge.actif {
+  background-color: rgba(76, 201, 240, 0.1);
+  color: var(--success);
 }
 
-.group-item strong {
-    color: #343a40;
-    font-size: 1rem;
+.status-badge.terminé {
+  background-color: rgba(120, 113, 108, 0.1);
+  color: #78716c;
 }
 
-.group-members {
-    margin-top: 5px;
-    font-size: 0.9rem;
-    color: #666;
+.status-badge.annulé {
+  background-color: rgba(247, 37, 133, 0.1);
+  color: var(--danger);
 }
 
-.group-members ul {
-    list-style: disc;
-    margin-left: 20px;
-    margin-top: 5px;
+.project-description {
+  color: var(--dark);
+  margin: 1rem 0;
+  line-height: 1.5;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.groups-section {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.groups-section h4 {
+  margin: 0 0 1rem 0;
+  color: var(--dark);
+  font-size: 1.1rem;
+}
+
+.groups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.group-card {
+  background-color: var(--light);
+  border-radius: calc(var(--border-radius) - 4px);
+  padding: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.group-header h5 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  color: var(--dark);
+}
+
+.group-description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--gray);
+}
+
+.members-list {
+  margin-top: 0.75rem;
+}
+
+.members-list h6 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--dark);
+  font-weight: 500;
+}
+
+.members-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .member-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 3px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
 }
 
-.remove-member-button {
-    background-color: #ff4d4f; /* Rouge vif */
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 1rem;
-    line-height: 1;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    margin-left: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.remove-member {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  line-height: 1;
 }
 
-.remove-member-button:hover {
-    background-color: #cf1322;
+.remove-member:hover {
+  color: #d10f63;
 }
 
-.no-members, .no-groups, .no-projects-found {
-    font-style: italic;
-    color: #888;
-    margin-top: 10px;
+.no-members,
+.no-groups {
+  font-size: 0.85rem;
+  color: var(--gray);
+  font-style: italic;
+  margin: 0.5rem 0;
 }
 
-.toggle-group-form-button {
-    background-color: #1890ff; /* Bleu */
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 15px;
-    font-size: 0.9rem;
-    transition: background-color 0.2s;
+.add-member-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
 }
 
-.toggle-group-form-button:hover {
-    background-color: #096dd9;
+.add-member-form select {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--gray);
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.add-button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.add-button:hover {
+  background-color: var(--secondary);
+}
+
+.group-actions {
+  margin-top: 1.5rem;
+}
+
+.toggle-form-button {
+  background-color: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.toggle-form-button:hover,
+.toggle-form-button.active {
+  background-color: var(--primary);
+  color: white;
 }
 
 .create-group-form {
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px dashed #c0c0c0;
-    border-radius: 8px;
-    background-color: #f0f8ff; /* Bleu très clair */
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--light);
+  border-radius: calc(var(--border-radius) - 4px);
+  border: 1px dashed var(--gray);
 }
 
-.create-group-form h4 {
-    margin-top: 0;
-    color: #0056b3;
+.create-group-form h5 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  color: var(--dark);
 }
 
 .create-group-form input,
 .create-group-form textarea {
-    width: calc(100% - 24px); /* Full width minus padding */
-    padding: 10px 12px;
-    margin-bottom: 10px;
-    border: 1px solid #a0d9ff;
-    border-radius: 4px;
-    font-size: 0.9rem;
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--gray);
+  border-radius: calc(var(--border-radius) - 4px);
+  font-size: 0.9rem;
 }
 
-.create-group-form button {
-    background-color: #52c41a; /* Vert pour créer un groupe */
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.2s;
+.create-group-form textarea {
+  min-height: 80px;
+  resize: vertical;
 }
 
-.create-group-form button:hover {
-    background-color: #389e08;
+.create-button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: calc(var(--border-radius) - 4px);
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  width: 100%;
 }
 
-.add-member-form {
-    display: flex;
-    gap: 5px;
-    margin-top: 10px;
+.create-button:hover {
+  background-color: var(--secondary);
 }
 
-.add-member-form select {
-    flex-grow: 1;
-    padding: 6px 10px;
-    border-radius: 4px;
-    border: 1px solid #a0d9ff;
-    font-size: 0.85rem;
-}
+@media (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
 
-.add-member-form button {
-    background-color: #fadb14; /* Jaune pour ajouter */
-    color: #333;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: background-color 0.2s;
-}
+  .selector-label {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 
-.add-member-form button:hover {
-    background-color: #f7b900;
-}
-.message-info {
-    margin-top: 20px;
-    text-align: center;
-    color: #007bff;
-    font-weight: 500;
-}
+  .add-member-form {
+    flex-direction: column;
+  }
 
-.message-info.error {
-    color: #dc3545;
-}
-
-.message-info.no-classes {
-    color: #ffc107; /* Jaune pour info/warning */
-    font-weight: bold;
+  .add-button {
+    padding: 0.5rem;
+  }
 }

@@ -1,11 +1,10 @@
-// src/components/DocumentationList.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './DocumentationList.css'; // Pour les styles CSS purs
+import './DocumentationList.css';
 
 function DocumentationList() {
-    const [userClasses, setUserClasses] = useState([]); // Classes de l'utilisateur (pour le sélecteur)
-    const [selectedClassId, setSelectedClassId] = useState(''); // ID de la classe sélectionnée
+    const [userClasses, setUserClasses] = useState([]);
+    const [selectedClassId, setSelectedClassId] = useState('');
     const [documentations, setDocumentations] = useState([]);
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
@@ -24,21 +23,13 @@ function DocumentationList() {
             }
 
             try {
-                // Récupère toutes les classes auxquelles l'utilisateur est inscrit (prof ou étudiant)
-                const response = await axios.get(
-                    '/api/classes/me',
-                    {
-                        headers: {
-                            'x-auth-token': token
-                        }
-                    }
-                );
+                const response = await axios.get('/api/classes/me', {
+                    headers: { 'x-auth-token': token }
+                });
                 setUserClasses(response.data);
-                if (response.data.length > 0) {
-                    if (!selectedClassId) {
-                        setSelectedClassId(response.data[0].id); // Sélectionne la première classe par défaut
-                    }
-                } else {
+                if (response.data.length > 0 && !selectedClassId) {
+                    setSelectedClassId(response.data[0].id);
+                } else if (response.data.length === 0) {
                     setMessage('Vous n\'êtes inscrit à aucune classe pour le moment.');
                 }
             } catch (error) {
@@ -46,12 +37,12 @@ function DocumentationList() {
                 setMessage(errorMessage);
                 setUserClasses([]);
                 setDocumentations([]);
-                console.error('Erreur chargement classes utilisateur (Documentation) :', error.response?.data || error.message);
+                console.error('Erreur chargement classes utilisateur:', error.response?.data || error.message);
             }
         };
 
         fetchUserClasses();
-    }, []); // Se déclenche une fois au montage
+    }, []);
 
     useEffect(() => {
         const fetchDocumentations = async () => {
@@ -62,17 +53,12 @@ function DocumentationList() {
 
             setLoading(true);
             setMessage('');
-            const token = localStorage.getItem('token');
 
             try {
-                const response = await axios.get(
-                    `/api/documentations/${selectedClassId}`,
-                    {
-                        headers: {
-                            'x-auth-token': token
-                        }
-                    }
-                );
+                const token = localStorage.getItem('token');
+                const response = await axios.get(`/api/documentations/${selectedClassId}`, {
+                    headers: { 'x-auth-token': token }
+                });
                 setDocumentations(response.data);
                 if (response.data.length === 0) {
                     setMessage('Aucune documentation pour cette classe.');
@@ -81,20 +67,19 @@ function DocumentationList() {
                 const errorMessage = error.response?.data?.message || 'Erreur lors du chargement de la documentation.';
                 setMessage(errorMessage);
                 setDocumentations([]);
-                console.error('Erreur chargement documentation :', error.response?.data || error.message);
+                console.error('Erreur chargement documentation:', error.response?.data || error.message);
             } finally {
                 setLoading(false);
             }
         };
 
-        if (selectedClassId) {
-            fetchDocumentations();
-        }
-    }, [selectedClassId]); // Se déclenche quand la classe sélectionnée change
+        fetchDocumentations();
+    }, [selectedClassId]);
 
     return (
         <div className="documentation-list-container">
             <h2>Documentation des Classes</h2>
+            
             {message && <p className="message-info">{message}</p>}
 
             {userClasses.length > 0 && (
@@ -114,7 +99,7 @@ function DocumentationList() {
             )}
 
             {loading ? (
-                <p>Chargement de la documentation...</p>
+                <p className="loading-text">Chargement de la documentation...</p>
             ) : (
                 selectedClassId && documentations.length > 0 ? (
                     <div className="documentations-grid">

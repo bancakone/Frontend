@@ -1,91 +1,249 @@
-/* src/components/MySubmissions.css */
-.my-submissions-container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 25px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* Variables */
+:root {
+  --primary-color: #4361ee;
+  --primary-light: #e0e7ff;
+  --success-color: #4cc9f0;
+  --warning-color: #f8961e;
+  --error-color: #ef233c;
+  --text-color: #2b2d42;
+  --light-gray: #f8f9fa;
+  --medium-gray: #e9ecef;
+  --dark-gray: #6c757d;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --transition: all 0.3s ease;
+}
+
+/* Structure */
+.submissions-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.submissions-header {
   text-align: center;
+  margin-bottom: 3rem;
 }
 
-.my-submissions-container h2 {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 25px;
-  color: #333;
+.submissions-header h1 {
+  color: var(--text-color);
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
 }
 
+.submissions-header p {
+  color: var(--dark-gray);
+  font-size: 1.1rem;
+}
+
+/* Grille de soumissions */
 .submissions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
+/* Carte de soumission */
 .submission-card {
-  background-color: #f6fdf6; /* Vert très clair */
-  border: 1px solid #d4edda;
-  border-left: 5px solid #28a745; /* Barre latérale verte */
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition);
+  border-top: 4px solid var(--primary-color);
+}
+
+.submission-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.2rem;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  flex: 1;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.status-badge.pending {
+  background-color: rgba(248, 150, 30, 0.1);
+  color: var(--warning-color);
+}
+
+.status-badge.graded {
+  background-color: rgba(76, 201, 240, 0.1);
+  color: var(--success-color);
+}
+
+.status-badge.feedback {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: var(--primary-color);
+}
+
+.card-body {
+  flex: 1;
+  margin-bottom: 1.5rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.info-row span:first-child {
+  color: var(--dark-gray);
+}
+
+.info-row.highlight {
+  padding: 0.8rem;
+  background-color: var(--light-gray);
   border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  text-align: left;
+  margin-top: 1rem;
 }
 
-.submission-card h3 {
-  font-size: 1.3rem;
-  color: #1e7e34;
-  margin-bottom: 10px;
+.grade-value {
+  font-weight: 600;
+  color: var(--success-color);
 }
 
-.submission-card p {
-    font-size: 0.95rem;
-    color: #333;
-    margin-bottom: 5px;
-}
-
-.submission-grade {
-    font-weight: bold;
-    color: #007bff; /* Bleu pour la note */
-    margin-top: 10px;
-}
-
-.submission-feedback {
-    font-style: italic;
-    color: #6c757d;
-}
-
-.no-grade-message {
-    color: #ffc107; /* Jaune pour en attente */
-    font-weight: bold;
-}
-
-.view-details-button {
-  background-color: #007bff; /* Bleu pour voir les détails */
+/* Bouton détails */
+.details-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--primary-color);
   color: white;
-  font-weight: bold;
-  padding: 8px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--border-radius);
+  padding: 0.8rem 1.2rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-  margin-top: 15px;
-  display: block; /* Pour prendre toute la largeur */
-  width: 100%;
+  transition: var(--transition);
+  margin-top: auto;
 }
 
-.view-details-button:hover {
-  background-color: #0056b3;
+.details-button:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
 }
 
-.message-info {
-  margin-top: 20px;
+.details-button svg {
+  transition: var(--transition);
+}
+
+.details-button:hover svg {
+  transform: translateX(3px);
+}
+
+/* États vides */
+.submissions-empty {
   text-align: center;
-  color: #007bff;
-  font-weight: 500;
+  padding: 3rem 1rem;
+  color: var(--dark-gray);
 }
 
-.message-info.error {
-    color: #dc3545;
+.submissions-empty img {
+  opacity: 0.7;
+  margin-bottom: 1.5rem;
+}
+
+.submissions-empty p {
+  font-size: 1.1rem;
+  margin-top: 1rem;
+}
+
+/* Chargement */
+.submissions-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  gap: 1rem;
+}
+
+.loader {
+  border: 4px solid rgba(67, 97, 238, 0.1);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+/* Erreur */
+.submissions-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  gap: 1rem;
+  text-align: center;
+}
+
+.error-icon {
+  width: 50px;
+  height: 50px;
+  background-color: rgba(239, 35, 60, 0.1);
+  color: var(--error-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.back-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.8rem 1.5rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.back-button:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+/* Animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .submissions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .submissions-header h1 {
+    font-size: 1.8rem;
+  }
 }

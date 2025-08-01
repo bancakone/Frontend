@@ -1,110 +1,183 @@
-// src/components/MySubmissions.js
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import MySubmissionView from './MySubmissionView'; // Pour afficher le détail
-import './MySubmissions.css';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import MySubmissionView from "./MySubmissionView";
+import "./MySubmissions.css";
 
 function MySubmissions() {
-    const [mySubmissions, setMySubmissions] = useState([]);
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState(null);
+  const [state, setState] = useState({
+    submissions: [],
+    loading: true,
+    error: "",
+    user: null,
+  });
 
-    // Pour afficher le détail d'une soumission
-    const [selectedSubmissionId, setSelectedSubmissionId] = useState(null);
+  const [selectedSubmissionId, setSelectedSubmissionId] = useState(null);
 
-    useEffect(() => {
-        const fetchMySubmissions = async () => {
-            const token = localStorage.getItem('token');
-            const loggedInUser = JSON.parse(localStorage.getItem('user'));
-            setUser(loggedInUser);
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user"));
 
-            if (!token || !loggedInUser || loggedInUser.role !== 'Etudiant') {
-                setMessage('Vous devez être connecté en tant qu\'étudiant pour voir vos soumissions.');
-                setLoading(false);
-                return;
-            }
+      if (!token || !user) {
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: "Veuillez vous connecter pour accéder à vos soumissions",
+        }));
+        return;
+      }
 
-            try {
-                // Nous avons besoin d'une nouvelle API backend pour lister toutes les soumissions d'un étudiant.
-                // Pour l'instant, je vais simuler cette API et vous devrez l'ajouter au backend.
-                // Sinon, nous devrions modifier TaskList pour pré-charger la soumission de l'étudiant.
-                // Créons une nouvelle API backend `GET /api/users/me/submissions` pour simplifier.
+      if (user.role !== "Etudiant") {
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: "Réservé aux étudiants",
+        }));
+        return;
+      }
 
-                // *** NOTE IMPORTANTE *** :
-                // Cette ligne fera une erreur 404 tant que l'API n'est pas ajoutée au backend.
-                // Je vous donnerai le code backend juste après.
-                const response = await axios.get(
-                    '/api/users/me/submissions',
-                    {
-                        headers: {
-                            'x-auth-token': token
-                        }
-                    }
-                );
-                setMySubmissions(response.data);
-                if (response.data.length === 0) {
-                    setMessage('Vous n\'avez pas encore fait de soumissions.');
-                }
-            } catch (error) {
-                const errorMessage = error.response?.data?.message || 'Erreur lors du chargement de vos soumissions.';
-                setMessage(errorMessage);
-                console.error('Erreur chargement soumissions de l\'étudiant :', error.response?.data || error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+      try {
+        const response = await axios.get("/api/users/me/submissions", {
+          headers: { "x-auth-token": token },
+        });
 
-        fetchMySubmissions();
-    }, []);
+        setState((prev) => ({
+          ...prev,
+          submissions: response.data,
+          user,
+          loading: false,
+          error: response.data.length === 0 ? "Aucune soumission trouvée" : "",
+        }));
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: error.response?.data?.message || "Erreur lors du chargement",
+        }));
+      }
+    };
 
-    if (user && user.role !== 'Etudiant') {
-        return <div className="my-submissions-container"><p className="message-info error">Vous n'avez pas l'autorisation de voir cette page.</p></div>;
-    }
+    fetchSubmissions();
+  }, []);
 
-    if (selectedSubmissionId) {
-        return <MySubmissionView submissionId={selectedSubmissionId} onClose={() => setSelectedSubmissionId(null)} />;
-    }
-
+  if (selectedSubmissionId) {
     return (
-        <div className="my-submissions-container">
-            <h2>Mes Soumissions</h2>
-            {message && <p className="message-info">{message}</p>}
-
-            {loading ? (
-                <p>Chargement de vos soumissions...</p>
-            ) : (
-                mySubmissions.length > 0 ? (
-                    <div className="submissions-grid">
-                        {mySubmissions.map(submission => (
-                            <div key={submission.id} className="submission-card">
-                                <h3>{submission.taskTitre}</h3>
-                                <p>Classe : {submission.className}</p>
-                                <p>Soumis le : {new Date(submission.submitted_at).toLocaleDateString()}</p>
-                                {submission.grade !== null && (
-                                    <p className="submission-grade">Note : {submission.grade} / 100</p>
-                                )}
-                                {submission.correction_feedback && (
-                                    <p className="submission-feedback">Feedback reçu</p>
-                                )}
-                                {!submission.grade && !submission.correction_feedback && (
-                                    <p className="no-grade-message">En attente de correction</p>
-                                )}
-                                <button
-                                    onClick={() => setSelectedSubmissionId(submission.id)}
-                                    className="view-details-button"
-                                >
-                                    Voir les détails
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    !message && <p>Aucune soumission à afficher pour le moment.</p>
-                )
-            )}
-        </div>
+      <MySubmissionView
+        submissionId={selectedSubmissionId}
+        onClose={() => setSelectedSubmissionId(null)}
+      />
     );
+  }
+
+  if (state.loading) {
+    return (
+      <div className="submissions-loading">
+        <div className="loader"></div>
+        <p>Chargement de vos soumissions...</p>
+      </div>
+    );
+  }
+
+  if (state.error) {
+    return (
+      <div className="submissions-error">
+        <div className="error-icon">!</div>
+        <p>{state.error}</p>
+        {state.error === "Réservé aux étudiants" && (
+          <button className="back-button" onClick={() => window.history.back()}>
+            Retour
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="submissions-container">
+      <header className="submissions-header">
+        <h1>Mes Soumissions</h1>
+        <p>Historique de vos travaux rendus</p>
+      </header>
+
+      {state.submissions.length > 0 ? (
+        <div className="submissions-grid">
+          {state.submissions.map((submission) => (
+            <div key={submission.id} className="submission-card">
+              <div className="card-header">
+                <h3>{submission.taskTitre}</h3>
+                <span
+                  className={`status-badge ${
+                    submission.grade !== null
+                      ? "graded"
+                      : submission.correction_feedback
+                      ? "feedback"
+                      : "pending"
+                  }`}
+                >
+                  {submission.grade !== null
+                    ? "Noté"
+                    : submission.correction_feedback
+                    ? "Feedback"
+                    : "En attente"}
+                </span>
+              </div>
+
+              <div className="card-body">
+                <div className="info-row">
+                  <span>Classe</span>
+                  <span>{submission.className}</span>
+                </div>
+                <div className="info-row">
+                  <span>Date de soumission</span>
+                  <span>
+                    {new Date(submission.submitted_at).toLocaleDateString(
+                      "fr-FR",
+                      {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      }
+                    )}
+                  </span>
+                </div>
+                {submission.grade !== null && (
+                  <div className="info-row highlight">
+                    <span>Note</span>
+                    <span className="grade-value">{submission.grade}/100</span>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={() => setSelectedSubmissionId(submission.id)}
+                className="details-button"
+              >
+                <span>Voir détails</span>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="submissions-empty">
+          <img
+            src="/images/empty-submissions.svg"
+            alt="Aucune soumission"
+            width="150"
+          />
+          <p>Vous n'avez pas encore soumis de travail</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default MySubmissions;

@@ -1,77 +1,117 @@
-// src/components/CreateClass.js
-import React, { useState } from 'react';
-import axios from 'axios';
-import './CreateClass.css'; // Pour les styles CSS purs
+import axios from "axios";
+import { useState } from "react";
+import "./CreateClass.css";
 
 function CreateClass() {
-    const [nom, setNom] = useState('');
-    const [description, setDescription] = useState('');
-    const [message, setMessage] = useState('');
+  const [nom, setNom] = useState("");
+  const [description, setDescription] = useState("");
+  const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setMessage(''); // Réinitialiser le message précédent
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    setIsLoading(true);
 
-        const token = localStorage.getItem('token'); // Récupérer le token JWT
+    const token = localStorage.getItem("token");
 
-        if (!token) {
-            setMessage('Vous devez être connecté en tant que professeur pour créer une classe.');
-            return;
+    if (!token) {
+      setMessage(
+        "Vous devez être connecté en tant que professeur pour créer une classe."
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "/api/classes",
+        { nom, description },
+        {
+          headers: {
+            "x-auth-token": token,
+          },
         }
+      );
+      setMessage(
+        `Classe créée avec succès! Code de la classe : ${response.data.class.code}`
+      );
+      setNom("");
+      setDescription("");
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Erreur lors de la création de la classe.";
+      setMessage(errorMessage);
+      console.error(
+        "Erreur création classe :",
+        error.response?.data || error.message
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        try {
-            const response = await axios.post(
-                '/api/classes',
-                { nom, description },
-                {
-                    headers: {
-                        'x-auth-token': token // Envoyer le token dans les headers
-                    }
-                }
-            );
-            setMessage(response.data.message + ` Code de la classe : ${response.data.class.code}`);
-            setNom('');
-            setDescription('');
-            console.log('Classe créée :', response.data);
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Erreur lors de la création de la classe.';
-            setMessage(errorMessage);
-            console.error('Erreur création classe :', error.response?.data || error.message);
-        }
-    };
-
-    return (
-        <div className="create-class-container">
-            <h2>Créer une Nouvelle Classe</h2>
-            <form onSubmit={handleSubmit} className="create-class-form">
-                <div className="form-group">
-                    <label htmlFor="nom">Nom de la classe :</label>
-                    <input
-                        type="text"
-                        id="nom"
-                        value={nom}
-                        onChange={(e) => setNom(e.target.value)}
-                        className="form-input"
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="description">Description :</label>
-                    <textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="form-textarea"
-                        rows="4"
-                    ></textarea>
-                </div>
-                <button type="submit" className="create-class-button">
-                    Créer la classe
-                </button>
-            </form>
-            {message && <p className="message-info">{message}</p>}
+  return (
+    <div className="create-class-container">
+      <div className="create-class-card">
+        <div className="create-class-header">
+          <h2>Créer une Nouvelle Classe</h2>
+          <p>Remplissez les détails de votre nouvelle classe pour commencer</p>
         </div>
-    );
+
+        <form onSubmit={handleSubmit} className="create-class-form">
+          <div className="form-group">
+            <label htmlFor="nom">
+              Nom de la classe <span className="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="nom"
+              value={nom}
+              onChange={(e) => setNom(e.target.value)}
+              placeholder="Ex: Mathématiques Avancées"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows="4"
+              placeholder="Décrivez les objectifs de cette classe..."
+            ></textarea>
+          </div>
+
+          <div className="form-actions">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={isLoading ? "loading" : ""}
+            >
+              {isLoading ? (
+                <>
+                  <span className="spinner"></span>
+                  Création en cours...
+                </>
+              ) : (
+                "Créer la classe"
+              )}
+            </button>
+          </div>
+        </form>
+
+        {message && (
+          <div className={`message ${message.includes("Erreur") ? "error" : "success"}`}>
+            {message}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default CreateClass;
