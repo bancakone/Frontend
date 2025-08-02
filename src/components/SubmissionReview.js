@@ -169,7 +169,7 @@ function SubmissionReview() {
     }
   };
 
-  if (state.user && state.user.role !== "Professeur") {
+  if (state.user && state.user.role !== "professeur") {
     return (
       <div className="unauthorized-container">
         <div className="unauthorized-content">

@@ -27,7 +27,7 @@ function GroupManagement() {
       setState((prev) => ({ ...prev, loading: true }));
 
       const [usersRes, groupsRes] = await Promise.all([
-        axios.get("/api/auth/users", {
+        axios.get("/api/users/all", {
           headers: { Authorization: `Bearer ${token}` },
         }),
         axios.get("/api/groups", {

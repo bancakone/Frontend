@@ -16,6 +16,7 @@ import {
   MdDocumentScanner,
   MdEmail,
   MdGroups,
+  MdJoinFull,
   MdMessage,
   MdRateReview,
   MdSchool,
@@ -48,6 +49,16 @@ import UserManagement from "./components/UserManagement";
 // Configuration des menus par rôle avec icônes
 const menuConfig = {
   Professeur: [
+    {
+      name: "Gestion des Utilisateurs",
+      component: UserManagement,
+      icon: <MdSettings />,
+    },
+    // {
+    //   name: "Gestion des Groupes",
+    //   component: GroupManagement,
+    //   icon: <MdGroups />,
+    // },
     { name: "Liste des Classes", component: ClassList, icon: <MdClass /> },
     { name: "Créer une Classe", component: CreateClass, icon: <MdCreate /> },
     {
@@ -129,16 +140,14 @@ const menuConfig = {
   ],
   Coordinateur: [
     {
-      name: "Gestion des Utilisateurs",
-      component: UserManagement,
-      icon: <MdSettings />,
-    },
-    { name: "Liste des Classes", component: ClassList, icon: <MdClass /> },
-    { name: "Créer une Classe", component: CreateClass, icon: <MdCreate /> },
-    {
       name: "Liste des Annonces",
       component: AnnouncementList,
       icon: <MdAnnouncement />,
+    },
+    {
+      name: "Joindre une Classe",
+      component: JoinClass,
+      icon: <MdJoinFull />,
     },
     {
       name: "Liste des Documents",
@@ -169,8 +178,8 @@ function App() {
     setUser(userData);
     const defaultComponents = {
       Professeur: "Liste des Annonces",
-      Étudiant: "Liste des Annonces",
-      Coordinateur: "Gestion des Utilisateurs",
+      Étudiant: "Gestion des Utilisateurs",
+      Coordinateur: "Liste des Annonces",
     };
     setActiveComponent(
       defaultComponents[userData.role] || "Liste des Annonces"
@@ -238,7 +247,7 @@ function App() {
             <>
               <div className="user-profile">
                 <div className="avatar">
-                  {user.name.charAt(0).toUpperCase()}
+                  {user && user.name ? user.name.charAt(0).toUpperCase() : ""}
                 </div>
                 <div>
                   <h3>{user.name}</h3>
@@ -248,7 +257,7 @@ function App() {
 
               <nav>
                 <ul>
-                  {menuConfig[user.role].map((item) => (
+                  {user && menuConfig[user.role].map((item) => (
                     <li key={item.name}>
                       <button
                         onClick={() => {
@@ -355,7 +364,7 @@ function App() {
 
                 <div className="user-dropdown">
                   <div className="user-avatar">
-                    {user.name.charAt(0).toUpperCase()}
+                    {user && user.name ? user.name.charAt(0).toUpperCase() : ""}
                   </div>
                   <div className="user-info">
                     <span className="user-name">{user.name}</span>

@@ -23,7 +23,7 @@ function CreateProject() {
       if (
         !token ||
         !user ||
-        !["Professeur", "Coordinateur"].includes(user.role)
+        !["professeur", "Coordinateur"].includes(user.role)
       ) {
         setMessage("Vous n'avez pas la permission de créer un projet.");
         setLoading(false);
@@ -32,7 +32,7 @@ function CreateProject() {
 
       try {
         const classesApiRoute =
-          user.role === "Professeur"
+          user.role === "professeur"
             ? "/api/classes/professeur"
             : "/api/classes/me";
         const response = await axios.get(classesApiRoute, {
@@ -117,7 +117,7 @@ function CreateProject() {
     );
   }
 
-  if (!["Professeur", "Coordinateur"].includes(userRole)) {
+  if (!["professeur", "Coordinateur"].includes(userRole)) {
     return (
       <div className="create-project-container">
         <p className="message-info error">

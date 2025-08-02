@@ -1,55 +1,58 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import './Register.css';
+import axios from "axios";
+import { useState } from "react";
+import "./Register.css";
 
 function Register({ onAuthSwitch }) {
   const [formData, setFormData] = useState({
-    nom: '',
-    prenom: '',
-    email: '',
-    motDePasse: '',
-    role: 'Etudiant'
+    nom: "",
+    prenom: "",
+    email: "",
+    motDePasse: "",
+    role: "Etudiant",
   });
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setMessage('');
+    setMessage("");
     setIsSuccess(false);
 
     try {
-      const response = await axios.post('/api/auth/register', formData);
-      
-      setMessage('Inscription réussie ! Vous pouvez maintenant vous connecter.');
+      const response = await axios.post("/api/auth/register", formData);
+
+      setMessage(
+        "Inscription réussie ! Vous pouvez maintenant vous connecter."
+      );
       setIsSuccess(true);
-      
+
       // Réinitialisation du formulaire
       setFormData({
-        nom: '',
-        prenom: '',
-        email: '',
-        motDePasse: '',
-        role: 'Etudiant'
+        nom: "",
+        prenom: "",
+        email: "",
+        motDePasse: "",
+        role: "Etudiant",
       });
 
       // Redirection automatique après 2 secondes
       setTimeout(() => {
-        onAuthSwitch('Connexion');
+        onAuthSwitch("Connexion");
       }, 2000);
-
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Erreur lors de l\'inscription.');
+      setMessage(
+        error.response?.data?.message || "Erreur lors de l'inscription."
+      );
       setIsSuccess(false);
     } finally {
       setIsLoading(false);
@@ -118,7 +121,7 @@ function Register({ onAuthSwitch }) {
           <div className="form-group">
             <label>Rôle</label>
             <div className="role-selector">
-              {['Etudiant', 'Professeur', 'Coordinateur'].map((roleOption) => (
+              {["Etudiant", "Professeur", "Coordinateur"].map((roleOption) => (
                 <label key={roleOption} className="role-option">
                   <input
                     type="radio"
@@ -134,21 +137,21 @@ function Register({ onAuthSwitch }) {
           </div>
 
           <button type="submit" className="submit-button" disabled={isLoading}>
-            {isLoading ? 'Inscription en cours...' : 'S\'inscrire'}
+            {isLoading ? "Inscription en cours..." : "S'inscrire"}
           </button>
         </form>
 
         {message && (
-          <div className={`message ${isSuccess ? 'success' : 'error'}`}>
+          <div className={`message ${isSuccess ? "success" : "error"}`}>
             {message}
           </div>
         )}
 
         <div className="auth-switch">
           <p>Déjà un compte ?</p>
-          <button 
-            type="button" 
-            onClick={() => onAuthSwitch('Connexion')}
+          <button
+            type="button"
+            onClick={() => onAuthSwitch("Connexion")}
             className="switch-button"
           >
             Se connecter
